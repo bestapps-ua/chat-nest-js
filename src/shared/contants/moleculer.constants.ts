@@ -1,0 +1,1 @@
+export const MOLECULER_BROKER = 'MOLECULER_BROKER';
