@@ -56,7 +56,7 @@ export class ChatMessage {
     @Prop([
         {
             userId: { type: String, required: true },
-            reaction: { type: String, required: true }, // e.g., "👍", "❤️"
+            reaction: { type: String, required: true },
         },
     ])
     reactions?: { userId: String; reaction: string }[];

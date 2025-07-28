@@ -3,13 +3,14 @@ import { ChatRoomUserService } from '../services/chat-room-user.service';
 import { CrudController } from '../../../shared/controllers/crud.controller';
 import { CreateChatRoomUserDto } from '../dto/create-chat-room-user.dto';
 import { UpdateChatRoomUserDto } from '../dto/update-chat-room-user.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { PrefixedUuidV7Param } from '../../../shared/decorators/parse.prefixed.uuid.decorator';
 import { GenerateUuidIfEmptyPipe } from '../../../shared/pipes/generate.prefixed.uuid.pipe';
 
 @Controller({
   path: 'chat/room-users',
 })
+@ApiBearerAuth()
 export class ChatRoomUserController extends CrudController<
   CreateChatRoomUserDto,
   UpdateChatRoomUserDto

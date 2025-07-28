@@ -19,6 +19,7 @@ import { UserVO } from '../../../user/vo/user.vo';
 @Controller({
     path: 'chat/rooms',
 })
+@ApiBearerAuth()
 export class ChatRoomController extends CrudController<
     CreateChatRoomDto,
     UpdateChatRoomDto
@@ -26,7 +27,6 @@ export class ChatRoomController extends CrudController<
     @Inject(ChatRoomService) declare static readonly service: ChatRoomService;
 
     @Post()
-    @ApiBearerAuth()
     @ApiBody({ type: CreateChatRoomDto })
     @UsePipes(new GenerateUuidIfEmptyPipe())
     create(@Body() create: CreateChatRoomDto, @Req() request: Request) {
@@ -36,7 +36,6 @@ export class ChatRoomController extends CrudController<
     }
 
     @Patch(':uid')
-    @ApiBearerAuth()
     @ApiBody({ type: CreateChatRoomDto })
     update(
         @PrefixedUuidV7Param('uid') uid: string,

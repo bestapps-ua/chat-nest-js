@@ -28,6 +28,8 @@ import { RESPONSE_SERVICE } from './shared/contants/response.constants';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ClientsModule, RmqOptions, Transport } from '@nestjs/microservices';
 import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { ProfileService } from './profile/services/profile/profile.service';
+import { ProfileModule } from './profile/profile.module';
 
 @Global()
 @Module({
@@ -80,6 +82,7 @@ import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
         UserModule,
         ChatRoomUserModule,
         AuthModule,
+        ProfileModule,
         EventEmitterModule.forRoot(),
 
     ],
@@ -131,6 +134,7 @@ import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
             },
             inject: [ResponseService],
         },
+        ProfileService,
 
     ],
     exports: [

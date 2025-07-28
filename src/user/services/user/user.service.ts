@@ -14,6 +14,7 @@ import { UserCredentialType } from '../../types/user.credential.type';
 import { EntityVO } from '../../../shared/vo/entity.vo';
 import { EntityInterface } from '../../../shared/interfaces/entity.interface';
 import { VO } from '../../../shared/vo/vo';
+import { NumberVO } from '../../../shared/vo/number.vo';
 
 @Injectable()
 export class UserService extends SQLEntityService<UserEntity> {
@@ -50,6 +51,8 @@ export class UserService extends SQLEntityService<UserEntity> {
         let emailVo = EmailVO.create(emailCredential?.credential);
         let usernameVo = UsernameVO.create(usernameCredential?.credential);
         let passwordVo = PasswordVO.create(apiUser?.password);
+        let updatedVo = NumberVO.create(user?.updated);
+        let createdVo = NumberVO.create(user?.created);
 
         return UserVO.create({
             id: user?.id,
@@ -57,6 +60,8 @@ export class UserService extends SQLEntityService<UserEntity> {
             email: emailVo,
             username: usernameVo,
             password: passwordVo,
+            updated: updatedVo,
+            created: createdVo,
         });
     }
 }

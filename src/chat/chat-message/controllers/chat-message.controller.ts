@@ -19,6 +19,7 @@ import { UserVO } from '../../../user/vo/user.vo';
 @Controller({
     path: 'chat/messages',
 })
+@ApiBearerAuth()
 export class ChatMessageController extends CrudController<
     CreateChatMessageDto,
     UpdateChatMessageDto
@@ -27,7 +28,6 @@ export class ChatMessageController extends CrudController<
 
     //TODO: check access by room...
     @Post()
-    @ApiBearerAuth()
     @ApiBody({ type: CreateChatMessageDto })
     @UsePipes(new GenerateUuidIfEmptyPipe())
     create(@Body() create: CreateChatMessageDto, @Req() request: Request) {
@@ -37,7 +37,6 @@ export class ChatMessageController extends CrudController<
     }
 
     @Patch(':uid')
-    @ApiBearerAuth()
     @ApiBody({ type: UpdateChatMessageDto })
     update(
         @PrefixedUuidV7Param('uid') uid: string,

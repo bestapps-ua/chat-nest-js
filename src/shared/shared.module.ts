@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { BrokerService } from './services/broker/broker.service';
 import { SessionService } from './services/session/session.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -9,10 +9,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OutboxEventEntity } from './entities/outbox-event.entity';
 import { MessageBrokerService } from './services/message-broker/message-broker.service';
 import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { UserModule } from '../user/user.module';
 
 @Module({
     imports: [
         ConfigModule,
+        forwardRef(() => UserModule),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({

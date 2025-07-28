@@ -1,21 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Dto } from '../../dto/dto';
 import { ChatRoomEntity } from '../../../chat/chat-room/entities/chat-room.entity';
 import { ResponseOptionsInterface } from '../../interfaces/response-options.interface';
 import { ChatRoomUserEntity } from '../../../chat/chat-room-user/entities/chat-room-user.entity';
 import { ChatMessage } from '../../../chat/chat-message/shemas/chat-message.scheme';
 import { ChatMessageController } from '../../../chat/chat-message/controllers/chat-message.controller';
+import { UserEntity } from '../../../user/entities/user.entity';
+import { UserService } from '../../../user/services/user/user.service';
+import { UserVO } from '../../../user/vo/user.vo';
 
 @Injectable()
 export class ResponseService {
     private readonly name: string = 'ResponseServiceInstance';
+    @Inject(UserService) userService: UserService;
 
     async getResponse(data: Dto, options: ResponseOptionsInterface) {
         delete data['id'];
         return data;
     }
 
-    async getChatRoomResponse(data: ChatRoomEntity, options: any) {
+    async getChatRoomResponse(data: ChatRoomEntity, options: ResponseOptionsInterface) {
         return {
             uid: data.uid,
             name: data.name,
@@ -24,7 +28,7 @@ export class ResponseService {
         };
     }
 
-    async getChatMessageResponse(data: ChatMessage, options: any) {
+    async getChatMessageResponse(data: ChatMessage, options: ResponseOptionsInterface) {
         return {
             uid: data.uid,
             encryptedContent: data.encryptedContent,
@@ -35,10 +39,32 @@ export class ResponseService {
         };
     }
 
+    async getProfile(data: UserEntity | UserVO, options: ResponseOptionsInterface) {
+        const vo: UserVO = data instanceof UserVO ? data : await this.userService.getVO(data.uid) as UserVO;
+        return {
+            uid: vo.getUid().value,
+            email: vo.getEmail().value,
+            updated: vo.getUpdated().value,
+            created: vo.getCreated().value,
+        };
+    }
+
+    async getProfileResponse(data: UserEntity, options: ResponseOptionsInterface) {
+        return await this.getProfile(data, options);
+    }
+
+    async getAuthResponse(data: any, options: ResponseOptionsInterface) {
+        return {
+            accessToken: data.access_token,
+            user: await this.getProfile(data.user, options),
+        }
+    }
+
     public async _methodNotFound(
         methodName: string,
         args: any[],
     ): Promise<any> {
+
         if (methodName.includes('Response')) {
             return await this.getResponse(args[0], args[1]);
         }
@@ -79,12 +105,10 @@ export class ResponseService {
                     }
                     return undefined;
                 }
-
-                // 2. If the property exists AND it's a function (an existing method)
                 if (
                     typeof target[propertyName as keyof ResponseService] ===
                         'function' &&
-                    propertyName !== '_methodNotFound' // Ensure _methodNotFound isn't accidentally proxied as a missing method
+                    propertyName !== '_methodNotFound'
                 ) {
                     return function (...args: any[]) {
                         return Reflect.apply(

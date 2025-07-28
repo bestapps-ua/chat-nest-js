@@ -20,4 +20,9 @@ export class UserVO extends EntityVO<UserInterface> {
     getPassword(): PasswordVO {
         return this.value.password;
     }
+
+    isValid(value: UserInterface): boolean {
+        //TODO: validate
+        return true;
+    }
 }
