@@ -6,9 +6,10 @@ import { UserModule } from '../user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
-    imports: [SharedModule, UserModule],
+    imports: [SharedModule, UserModule, ProfileModule],
     providers: [
         AuthService,
         {

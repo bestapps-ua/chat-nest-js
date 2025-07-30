@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'chat_message' })
 export class ChatMessage {
     @Prop({ type: String, required: true, index: true, unique: true })
     uid: string;

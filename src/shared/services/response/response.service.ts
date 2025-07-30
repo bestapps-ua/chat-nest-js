@@ -2,9 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Dto } from '../../dto/dto';
 import { ChatRoomEntity } from '../../../chat/chat-room/entities/chat-room.entity';
 import { ResponseOptionsInterface } from '../../interfaces/response-options.interface';
-import { ChatRoomUserEntity } from '../../../chat/chat-room-user/entities/chat-room-user.entity';
 import { ChatMessage } from '../../../chat/chat-message/shemas/chat-message.scheme';
-import { ChatMessageController } from '../../../chat/chat-message/controllers/chat-message.controller';
 import { UserEntity } from '../../../user/entities/user.entity';
 import { UserService } from '../../../user/services/user/user.service';
 import { UserVO } from '../../../user/vo/user.vo';
@@ -19,7 +17,7 @@ export class ResponseService {
         return data;
     }
 
-    async getChatRoomResponse(data: ChatRoomEntity, options: ResponseOptionsInterface) {
+    async getChatRoom(data: ChatRoomEntity, options: ResponseOptionsInterface) {
         return {
             uid: data.uid,
             name: data.name,
@@ -28,7 +26,21 @@ export class ResponseService {
         };
     }
 
-    async getChatMessageResponse(data: ChatMessage, options: ResponseOptionsInterface) {
+    async getChatRoomResponse(
+        data: ChatRoomEntity[],
+        options: ResponseOptionsInterface,
+    ) {
+        let items: any = [];
+        for (const d of data) {
+            items.push(await this.getChatRoom(d, options));
+        }
+        return items;
+    }
+
+    async getChatMessageResponse(
+        data: ChatMessage,
+        options: ResponseOptionsInterface,
+    ) {
         return {
             uid: data.uid,
             encryptedContent: data.encryptedContent,
@@ -39,8 +51,14 @@ export class ResponseService {
         };
     }
 
-    async getProfile(data: UserEntity | UserVO, options: ResponseOptionsInterface) {
-        const vo: UserVO = data instanceof UserVO ? data : await this.userService.getVO(data.uid) as UserVO;
+    async getProfile(
+        data: UserEntity | UserVO,
+        options: ResponseOptionsInterface,
+    ) {
+        const vo: UserVO =
+            data instanceof UserVO
+                ? data
+                : ((await this.userService.getVO(data.uid)) as UserVO);
         return {
             uid: vo.getUid().value,
             email: vo.getEmail().value,
@@ -49,22 +67,27 @@ export class ResponseService {
         };
     }
 
-    async getProfileResponse(data: UserEntity, options: ResponseOptionsInterface) {
+    async getProfileResponse(
+        data: UserEntity,
+        options: ResponseOptionsInterface,
+    ) {
         return await this.getProfile(data, options);
     }
 
-    async getAuthResponse(data: any, options: ResponseOptionsInterface) {
+    async getAuthResponse(
+        data: { accessToken: string; user: UserVO },
+        options: ResponseOptionsInterface,
+    ) {
         return {
-            accessToken: data.access_token,
+            accessToken: data.accessToken,
             user: await this.getProfile(data.user, options),
-        }
+        };
     }
 
     public async _methodNotFound(
         methodName: string,
         args: any[],
     ): Promise<any> {
-
         if (methodName.includes('Response')) {
             return await this.getResponse(args[0], args[1]);
         }

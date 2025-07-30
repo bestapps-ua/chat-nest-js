@@ -71,7 +71,7 @@ import { ProfileModule } from './profile/profile.module';
 
                     return connection;
                 },
-                connectionName: configService.get('mongo.name'),
+                //connectionName: configService.get('mongo.db'),
             }),
             inject: [ConfigService],
         }),

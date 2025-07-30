@@ -1,4 +1,5 @@
 import {
+    Inject,
     Injectable,
     NotAcceptableException,
     UnauthorizedException,
@@ -10,17 +11,21 @@ import { ApiUserService } from 'src/user/services/api/api-user/api-user.service'
 import { CreateUserEntityDto } from '../../../user/dto/create-user-entity.dto';
 import { SessionService } from '../../../shared/services/session/session.service';
 import { ConfigService } from '@nestjs/config';
+import { ProfileKeyService } from '../../../profile/services/profile-key/profile-key.service';
+import { CreateProfileKeyDto } from '../../../profile/dto/create-profile-key.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private userService: UserService,
-        private sessionService: SessionService,
-        private apiUserService: ApiUserService,
-        private configService: ConfigService,
-    ) {}
+    @Inject(UserService) userService: UserService;
+    @Inject(SessionService) sessionService: SessionService;
+    @Inject(ApiUserService) apiUserService: ApiUserService;
+    @Inject(ConfigService) configService: ConfigService;
+    @Inject(ProfileKeyService) profileKeyService: ProfileKeyService;
 
-    async signIn(email: string, password: string) {
+    async signIn(
+        email: string,
+        password: string,
+    ): Promise<{ accessToken: string; user: UserVO }> {
         const user = await this.userService.findOneByEmail(email);
         const pass = await this.userService.encryptPassword(password);
         if (!user || user.password !== pass) {
@@ -30,7 +35,7 @@ export class AuthService {
         return this.getPayload(user.uid);
     }
 
-    async signUp(email: string, username: string, password: string) {
+    async signUp(email: string, username: string, publicKey: string, password: string) {
         const user = await this.userService.findOneByEmail(email);
         const pass = await this.userService.encryptPassword(password);
 
@@ -66,20 +71,30 @@ export class AuthService {
             };
 
             await this.userService.create<CreateUserEntityDto>(dto);
+
+            let profileKeyDto: CreateProfileKeyDto = {
+                userId: apiUser.uid,
+                publicKey,
+            };
+
+            await this.profileKeyService.create(profileKeyDto);
+
             return this.getPayload(apiUser.uid);
         } catch (err) {
             throw err;
         }
     }
 
-    private async getPayload(uid: string): Promise<{ access_token: string, user: UserVO }> {
+    private async getPayload(
+        uid: string,
+    ): Promise<{ accessToken: string; user: UserVO }> {
         let userVO = (await this.userService.getVO(uid)) as UserVO;
         const payload = {
             email: userVO.getEmail().value,
             sub: userVO.getUid().value,
         };
         return {
-            access_token: this.sessionService.sign(payload),
+            accessToken: this.sessionService.sign(payload),
             user: userVO,
         };
     }

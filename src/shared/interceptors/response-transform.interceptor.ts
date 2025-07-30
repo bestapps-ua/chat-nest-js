@@ -48,26 +48,13 @@ export class ResponseTransformInterceptor implements NestInterceptor {
                 ) {
                     return data;
                 }
+
                 const options: ResponseOptionsInterface = {
                     query: request.query,
                     name,
                     method: handlerMethod.name,
                     request,
                 };
-                if (Array.isArray(data)) {
-                    let p: Promise<any>[] = [];
-                    for (const item of data) {
-                        p.push(
-                            new Promise(async (resolve: any, reject: any) => {
-                                const d = await (this.responseService as any)[
-                                    method
-                                ](data, options);
-                                resolve(d);
-                            }),
-                        );
-                    }
-                    return await Promise.all(p);
-                }
 
                 return await (this.responseService as any)[method](
                     data,
