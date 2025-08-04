@@ -27,6 +27,13 @@ export class ResponseService {
     }
 
     async getChatRoomResponse(
+        data: ChatRoomEntity,
+        options: ResponseOptionsInterface,
+    ) {
+        return await this.getChatRoom(data, options);
+    }
+
+    async getChatRoomsResponse(
         data: ChatRoomEntity[],
         options: ResponseOptionsInterface,
     ) {
@@ -89,13 +96,12 @@ export class ResponseService {
         args: any[],
     ): Promise<any> {
         if (methodName.includes('Response')) {
+            console.warn(
+                `[ResponseService] Method "${methodName}" not found.`
+            );
             return await this.getResponse(args[0], args[1]);
         }
 
-        console.warn(
-            `[ResponseService] Method "${methodName}" not found. Arguments:`,
-            args,
-        );
         return Promise.reject(
             new Error(
                 `Method "${methodName}" does not exist on ResponseService.`,

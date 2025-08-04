@@ -29,7 +29,7 @@ export class ResponseTransformInterceptor implements NestInterceptor {
         const request = context.switchToHttp().getRequest();
         const name = controllerClass.name.replace('Controller', '');
 
-        const method = `get${name}Response`;
+
 
         const transformOnClass = this.reflector.get<boolean>(
             TRANSFORM_RESPONSE_KEY,
@@ -48,6 +48,14 @@ export class ResponseTransformInterceptor implements NestInterceptor {
                 ) {
                     return data;
                 }
+
+                let method = `get${name}`;
+                if(Array.isArray(data)) {
+                    if(!method.endsWith('s')){
+                        method += 's';
+                    }
+                }
+                method += 'Response';
 
                 const options: ResponseOptionsInterface = {
                     query: request.query,
