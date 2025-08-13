@@ -1,4 +1,4 @@
-import { Global, Inject, Module, OnModuleDestroy } from '@nestjs/common';
+import { Global, Inject, Module, OnModuleDestroy, Scope } from '@nestjs/common';
 
 import { ChatRoomModule } from './chat/chat-room/chat-room.module';
 import { ChatMessageModule } from './chat/chat-message/chat-message.module';

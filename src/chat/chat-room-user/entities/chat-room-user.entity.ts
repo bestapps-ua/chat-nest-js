@@ -22,10 +22,10 @@ export class ChatRoomUserEntity {
   uid: string;
 
   @Column("bigint", { name: "room_id", unsigned: true })
-  roomId: string;
+  roomId: number;
 
   @Column("bigint", { name: "user_id", unsigned: true })
-  userId: string;
+  userId: number;
 
   @Column("varchar", { name: "status", length: 50 })
   status: string;
@@ -36,9 +36,11 @@ export class ChatRoomUserEntity {
   @Column("int", { name: "created", unsigned: true })
   created: number;
 
+  @ManyToOne((type) => ChatRoomEntity)
   @JoinColumn([{ name: "room_id", referencedColumnName: "id" }])
   room: ChatRoomEntity;
 
+  @ManyToOne((type) => UserEntity)
   @JoinColumn([{ name: "user_id", referencedColumnName: "id" }])
   user: UserEntity;
 

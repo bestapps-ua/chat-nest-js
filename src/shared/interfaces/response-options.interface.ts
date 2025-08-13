@@ -3,4 +3,5 @@ export interface ResponseOptionsInterface {
     query: object;
     name: string;
     request: any;
+    data: any;
 }

@@ -10,11 +10,14 @@ import { OutboxEventEntity } from './entities/outbox-event.entity';
 import { MessageBrokerService } from './services/message-broker/message-broker.service';
 import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { UserModule } from '../user/user.module';
+import { RequestDataService } from './services/request-data/request-data.service';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
     imports: [
         ConfigModule,
         forwardRef(() => UserModule),
+        forwardRef(() => ProfileModule),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
@@ -49,6 +52,7 @@ import { UserModule } from '../user/user.module';
         ResponseService,
         OutboxEventService,
         MessageBrokerService,
+        RequestDataService,
     ],
     exports: [
         BrokerService,
@@ -57,6 +61,7 @@ import { UserModule } from '../user/user.module';
         ResponseService,
         OutboxEventService,
         MessageBrokerService,
+        RequestDataService,
     ],
 })
 export class SharedModule {}

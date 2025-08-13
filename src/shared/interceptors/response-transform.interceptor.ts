@@ -4,22 +4,24 @@ import {
     Inject,
     Injectable,
     NestInterceptor,
+    Scope,
 } from '@nestjs/common';
-import { mergeMap, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { from, mergeMap, Observable, of, tap } from 'rxjs';
 import { Dto } from '../dto/dto';
 import { RESPONSE_SERVICE } from '../contants/response.constants';
 import { ResponseService } from '../services/response/response.service';
 import { ResponseOptionsInterface } from '../interfaces/response-options.interface';
 import { TRANSFORM_RESPONSE_KEY } from '../decorators/transform-response.decorator';
 import { Reflector } from '@nestjs/core';
+import { RequestDataService } from '../services/request-data/request-data.service';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class ResponseTransformInterceptor implements NestInterceptor {
     constructor(
         @Inject(RESPONSE_SERVICE)
         private readonly responseService: ResponseService,
         private readonly reflector: Reflector,
+        private readonly requestDataService: RequestDataService,
     ) {}
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<Dto> {
@@ -28,8 +30,6 @@ export class ResponseTransformInterceptor implements NestInterceptor {
         const controllerParent = Object.getPrototypeOf(controllerClass).name;
         const request = context.switchToHttp().getRequest();
         const name = controllerClass.name.replace('Controller', '');
-
-
 
         const transformOnClass = this.reflector.get<boolean>(
             TRANSFORM_RESPONSE_KEY,
@@ -41,17 +41,25 @@ export class ResponseTransformInterceptor implements NestInterceptor {
             handlerMethod,
         );
 
+
+
         return next.handle().pipe(
-            map(async (data: Dto[]) => {
+            mergeMap(async (data: Dto[]) => {
                 if (
-                    controllerParent !== 'CrudController' && !transformOnClass && !transformOnMethod
+                    controllerParent !== 'CrudController' &&
+                    !transformOnClass &&
+                    !transformOnMethod
                 ) {
                     return data;
                 }
+                const customData = this.requestDataService.getData();
+                const customResponseOptions: Partial<ResponseOptionsInterface> =
+                    customData.responseOptions || {};
 
-                let method = `get${name}`;
-                if(Array.isArray(data)) {
-                    if(!method.endsWith('s')){
+                let method = customResponseOptions.method || `get${name}`;
+                //let method = `get${name}`;
+                if (Array.isArray(data)) {
+                    if (!method.endsWith('s')) {
                         method += 's';
                     }
                 }
@@ -62,6 +70,7 @@ export class ResponseTransformInterceptor implements NestInterceptor {
                     name,
                     method: handlerMethod.name,
                     request,
+                    data: {},
                 };
 
                 return await (this.responseService as any)[method](
@@ -69,6 +78,7 @@ export class ResponseTransformInterceptor implements NestInterceptor {
                     options,
                 );
             }),
+//            tap((d) => console.log(`After`, d)),
         );
     }
 }

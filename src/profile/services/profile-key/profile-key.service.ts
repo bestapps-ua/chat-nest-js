@@ -24,4 +24,10 @@ export class ProfileKeyService extends NOSQLEntityService {
         };
         return super.create(data);
     }
+
+    async findOneByUserId(userId: string): Promise<ProfileKey | null> {
+        return await this.model.findOne({
+            userId,
+        }).exec();
+    }
 }

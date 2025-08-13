@@ -4,7 +4,7 @@ import { UpdateChatRoomUserDto } from '../dto/update-chat-room-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../../../user/entities/user.entity';
 import { ChatRoomUserEntity } from '../entities/chat-room-user.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { SQLEntityService } from '../../../shared/services/entity/SQLEntityService';
 import { ChatRoomEntity } from '../../chat-room/entities/chat-room.entity';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -15,21 +15,34 @@ import { RoomVO } from '../../chat-room/vo/room.vo';
 
 @Injectable()
 export class ChatRoomUserService extends SQLEntityService<ChatRoomUserEntity> {
+    @InjectRepository(ChatRoomUserEntity)
+    declare protected repository: Repository<ChatRoomUserEntity>;
 
-  @InjectRepository(ChatRoomUserEntity) declare protected repository: Repository<ChatRoomUserEntity>;
+    uidPrefix: string = 'chatRoomUser';
 
-  uidPrefix: string = 'chatRoomUser';
+    protected relations: string[] = ['room', 'user'];
 
     @OnEvent(SharedEventType.EntityCreated)
-    async handleOrderCreatedEvent(payload: EntityCreatedEvent<EntityInterface>) {
+    async handleOrderCreatedEvent(
+        payload: EntityCreatedEvent<EntityInterface>,
+    ) {
         if (payload.entity instanceof RoomVO) {
             let roomUserEntity = {
                 uid: await this.generateUid(),
                 roomId: payload.entity.getId(),
                 userId: payload.entity.getOwner().getId(),
                 status: 'owner',
-            }
+            };
             this.create(roomUserEntity);
         }
+    }
+
+    async findAllByRoom(room: ChatRoomEntity): Promise<ChatRoomUserEntity[] | null> {
+        return await this.repository.find({
+            where: {
+                roomId: room.id,
+            },
+            relations: this.relations,
+        });
     }
 }

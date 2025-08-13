@@ -6,11 +6,14 @@ import { ChatMessage } from '../../../chat/chat-message/shemas/chat-message.sche
 import { UserEntity } from '../../../user/entities/user.entity';
 import { UserService } from '../../../user/services/user/user.service';
 import { UserVO } from '../../../user/vo/user.vo';
+import { ChatRoomUserEntity } from '../../../chat/chat-room-user/entities/chat-room-user.entity';
+import { ProfileKeyService } from '../../../profile/services/profile-key/profile-key.service';
 
 @Injectable()
 export class ResponseService {
     private readonly name: string = 'ResponseServiceInstance';
     @Inject(UserService) userService: UserService;
+    @Inject(ProfileKeyService) profileKeyService: ProfileKeyService;
 
     async getResponse(data: Dto, options: ResponseOptionsInterface) {
         delete data['id'];
@@ -24,6 +27,19 @@ export class ResponseService {
             updated: data.updated,
             created: data.created,
         };
+    }
+
+    async getChatRoomKeysResponse(data: ChatRoomUserEntity[], options: ResponseOptionsInterface){
+        let items: any = [];
+        for (const d of data) {
+            const key =  await this.profileKeyService.findOneByUserId(d.user.uid);
+            let res = {
+                uid: d.user.uid,
+                publicKey: key?.publicKey,
+            }
+            items.push(res);
+        }
+        return items;
     }
 
     async getChatRoomResponse(
