@@ -8,6 +8,7 @@ import { UserService } from '../../../user/services/user/user.service';
 import { UserVO } from '../../../user/vo/user.vo';
 import { ChatRoomUserEntity } from '../../../chat/chat-room-user/entities/chat-room-user.entity';
 import { ProfileKeyService } from '../../../profile/services/profile-key/profile-key.service';
+import { CursorListDto } from '../../dto/cursor.list.dto';
 
 @Injectable()
 export class ResponseService {
@@ -18,6 +19,19 @@ export class ResponseService {
     async getResponse(data: Dto, options: ResponseOptionsInterface) {
         delete data['id'];
         return data;
+    }
+
+    async getCursorListResponse(data: CursorListDto, options: ResponseOptionsInterface) {
+        const method = `get${options.name}`;
+        let items: any[] = [];
+        for (const itemData of data.items) {
+            const item = await this[method](itemData, options);
+            items.push(item);
+        }
+        return {
+            items,
+            cursor: data.cursor,
+        }
     }
 
     async getChatRoom(data: ChatRoomEntity, options: ResponseOptionsInterface) {
@@ -60,18 +74,26 @@ export class ResponseService {
         return items;
     }
 
-    async getChatMessageResponse(
+    async getChatMessage(
         data: ChatMessage,
         options: ResponseOptionsInterface,
     ) {
         return {
             uid: data.uid,
             encryptedContent: data.encryptedContent,
+            encryptedSymmetricKeys: data.encryptedSymmetricKeys,
             //@ts-ignore
             updated: Math.round(new Date(data.updatedAt).getTime() / 1000),
             //@ts-ignore
             created: Math.round(new Date(data.createdAt).getTime() / 1000),
         };
+    }
+
+    async getChatMessageResponse(
+        data: ChatMessage,
+        options: ResponseOptionsInterface,
+    ) {
+        return await this.getChatMessage(data, options);
     }
 
     async getProfile(
@@ -115,7 +137,14 @@ export class ResponseService {
             console.warn(
                 `[ResponseService] Method "${methodName}" not found.`
             );
-            return await this.getResponse(args[0], args[1]);
+            const options: ResponseOptionsInterface = args[1];
+            //console.log('[options]', options);
+            if(options.isList) {
+                if(methodName.includes('CursorList')) {
+                    return await this.getCursorListResponse(args[0], options);
+                }
+            }
+            return await this.getResponse(args[0], options);
         }
 
         return Promise.reject(

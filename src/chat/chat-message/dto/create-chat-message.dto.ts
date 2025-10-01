@@ -25,4 +25,7 @@ export class CreateChatMessageDto extends CreateDto {
     status: string = ChatRoomMessageStatus.Active;
 
     ownerId: string;
+
+    @ApiProperty()
+    encryptedSymmetricKeys: any[];
 }

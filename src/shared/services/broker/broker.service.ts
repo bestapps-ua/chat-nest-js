@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CallingOptions, ServiceBroker } from 'moleculer';
-import { MOLECULER_BROKER } from '../../contants/moleculer.constants';
+import { MOLECULER_BROKER } from '../../constants/moleculer.constants';
 
 
 @Injectable()

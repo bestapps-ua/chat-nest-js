@@ -10,12 +10,18 @@ import { validate as uuidValidate, version as uuidVersion } from 'uuid';
 
 
 export const PrefixedUuidV7Param = createParamDecorator(
-  (paramName: string, ctx: ExecutionContext) => {
+  (param: string|object, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<Request>();
     const controller = ctx.getClass();
-    const prefix = UidService.getPrefixByController(controller);
 
-    const paramValue = request.params[paramName];
+    let prefix = UidService.getPrefixByController(controller);
+    let paramName = param;
+    if(typeof param !== 'string') {
+        paramName = param['paramName'];
+        prefix = param['prefix'] ?? prefix;
+    }
+    console.log(param);
+    const paramValue = request.params[paramName as string];
 
     if (!paramValue) {
       throw new BadRequestException(`Param "${paramName}" not found`);

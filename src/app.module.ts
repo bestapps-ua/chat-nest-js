@@ -16,7 +16,7 @@ import { AuthModule } from './auth/auth.module';
 
 import moleculerConfig from './config/moleculer.config';
 import { BrokerService } from './shared/services/broker/broker.service';
-import { MOLECULER_BROKER } from './shared/contants/moleculer.constants';
+import { MOLECULER_BROKER } from './shared/constants/moleculer.constants';
 import authConfig from './config/auth.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import mongoConfig from './config/mongo.config';
@@ -24,7 +24,7 @@ import { Connection } from 'mongoose';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseTransformInterceptor } from './shared/interceptors/response-transform.interceptor';
 import { ResponseService } from './shared/services/response/response.service';
-import { RESPONSE_SERVICE } from './shared/contants/response.constants';
+import { RESPONSE_SERVICE } from './shared/constants/response.constants';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ClientsModule, RmqOptions, Transport } from '@nestjs/microservices';
 import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';

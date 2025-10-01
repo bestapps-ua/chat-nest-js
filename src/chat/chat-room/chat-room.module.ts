@@ -6,6 +6,7 @@ import { ChatRoomEntity } from './entities/chat-room.entity';
 import { UserModule } from '../../user/user.module';
 import { ChatRoomUserService } from '../chat-room-user/services/chat-room-user.service';
 import { ChatRoomUserModule } from '../chat-room-user/chat-room-user.module';
+import { ChatParticipantGuard } from './guards/chatParticipant.guard';
 
 @Module({
     imports: [
@@ -14,6 +15,10 @@ import { ChatRoomUserModule } from '../chat-room-user/chat-room-user.module';
         ChatRoomUserModule,
     ],
     controllers: [ChatRoomController],
-    providers: [ChatRoomService],
+    providers: [
+        ChatRoomService,
+        ChatParticipantGuard,
+    ],
+    exports: [ChatRoomService],
 })
 export class ChatRoomModule {}

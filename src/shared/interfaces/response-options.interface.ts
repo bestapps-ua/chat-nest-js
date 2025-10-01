@@ -4,4 +4,5 @@ export interface ResponseOptionsInterface {
     name: string;
     request: any;
     data: any;
+    isList: boolean;
 }
